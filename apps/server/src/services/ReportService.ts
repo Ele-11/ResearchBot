@@ -1,7 +1,8 @@
 /**
  * Report Service
  */
-import fs from 'path';
+import fs from 'fs';
+import path from 'path';
 
 interface ReportOptions {
   outputDir: string;
@@ -36,7 +37,7 @@ export class ReportService {
    */
   saveReport(topic: string, content: string): string {
     const filename = this.generateFilename(topic);
-    const filepath = fs.join(this.outputDir, filename);
+    const filepath = path.join(this.outputDir, filename);
     
     const reportWithTitle = `# 研究报告：${topic}\n\n---\n\n${content}`;
     

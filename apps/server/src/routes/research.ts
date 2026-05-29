@@ -15,12 +15,21 @@ interface ResearchRouterConfig {
  * Research API Router
  */
 export class ResearchRouter {
-  private miniMax: MiniMaxService;
+  private miniMax: MiniMaxService | null = null;
   private reportService: ReportService;
 
   constructor(config: ResearchRouterConfig) {
-    this.miniMax = new MiniMaxService();
     this.reportService = new ReportService({ outputDir: config.outputDir });
+  }
+
+  /**
+   * Lazy initialize MiniMax service (only when first request comes in)
+   */
+  private getMiniMax(): MiniMaxService {
+    if (!this.miniMax) {
+      this.miniMax = new MiniMaxService();
+    }
+    return this.miniMax;
   }
 
   async handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -68,9 +77,9 @@ export class ResearchRouter {
       let hasContent = false;
 
       try {
-        const messages = this.miniMax.createResearchPrompt(topic);
+        const messages = this.getMiniMax().createResearchPrompt(topic);
         
-        for await (const text of this.miniMax.streamChat(messages)) {
+        for await (const text of this.getMiniMax().streamChat(messages)) {
           hasContent = true;
           fullContent += text;
           sendSSE(res, JSON.stringify({ text }));
