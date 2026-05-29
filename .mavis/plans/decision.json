@@ -1,0 +1,22 @@
+﻿{
+  "last_cycle": [
+    {
+      "task_id": "implementation",
+      "verdict": "accept",
+      "reason": "lint typecheck build test all passed"
+    }
+  ],
+  "next_cycle": [
+    {
+      "task_id": "bugfix",
+      "title": "Verify Milestone 1 builds pass",
+      "prompt": "Checkout milestone/1-project-init branch. Run pnpm lint && pnpm typecheck && pnpm build && pnpm test. If any fails create new branch milestone/1-project-init-fix fix issue push. If all pass write deliverable.md reporting all clear.",
+      "assigned_to": "general",
+      "verified_by": "verifier",
+      "verify_prompt": "Run pnpm lint && pnpm typecheck && pnpm build && pnpm test. All must exit code 0.",
+      "timeout_ms": 1800000
+    }
+  ],
+  "plan_complete": false,
+  "message_to_user": "Implementation passed. Now running verification task."
+}
