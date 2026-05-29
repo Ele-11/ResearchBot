@@ -12,6 +12,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@langchain/community": "^1.1.29",
+    "@langchain/core": "^1.1.48",
+    "@researchbot/langchain-tools": "workspace:*",
     "@researchbot/shared": "workspace:*",
     "dotenv": "^17.4.2"
   },

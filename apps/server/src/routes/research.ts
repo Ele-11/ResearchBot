@@ -1,10 +1,12 @@
 /**
  * Research Route Handler
+ * 
+ * Uses ResearchAgent with BingSearchTool to gather information before generating reports.
  */
 import http from 'http';
 import path from 'path';
 import { parseBody, sendJSON, sendSSE, sendSSEText, sleep } from '../utils';
-import { MiniMaxService, ReportService } from '../services';
+import { ReportService, ResearchAgent } from '../services';
 import type { ResearchRequest } from '../types';
 
 interface ResearchRouterConfig {
@@ -13,9 +15,11 @@ interface ResearchRouterConfig {
 
 /**
  * Research API Router
+ * 
+ * Integrates with ResearchAgent which uses BingSearchTool for research.
  */
 export class ResearchRouter {
-  private miniMax: MiniMaxService | null = null;
+  private researchAgent: ResearchAgent | null = null;
   private reportService: ReportService;
 
   constructor(config: ResearchRouterConfig) {
@@ -23,13 +27,13 @@ export class ResearchRouter {
   }
 
   /**
-   * Lazy initialize MiniMax service (only when first request comes in)
+   * Lazy initialize ResearchAgent (only when first request comes in)
    */
-  private getMiniMax(): MiniMaxService {
-    if (!this.miniMax) {
-      this.miniMax = new MiniMaxService();
+  private getResearchAgent(): ResearchAgent {
+    if (!this.researchAgent) {
+      this.researchAgent = new ResearchAgent();
     }
-    return this.miniMax;
+    return this.researchAgent;
   }
 
   async handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -66,20 +70,17 @@ export class ResearchRouter {
         'Connection': 'keep-alive',
       });
 
-      // Step 1: Thinking
-      sendSSEText(res, '正在分析研究主题...');
-      await sleep(300);
-
-      // Step 2: Generate
-      sendSSEText(res, '正在生成研究报告...');
+      // Get ResearchAgent with BingSearchTool
+      const agent = this.getResearchAgent();
       
       let fullContent = '';
       let hasContent = false;
 
       try {
-        const messages = this.getMiniMax().createResearchPrompt(topic);
-        
-        for await (const text of this.getMiniMax().streamChat(messages)) {
+        // Use ResearchAgent which will:
+        // 1. Search for information using BingSearchTool
+        // 2. Generate report based on search results
+        for await (const text of agent.research(topic)) {
           hasContent = true;
           fullContent += text;
           sendSSE(res, JSON.stringify({ text }));
@@ -103,17 +104,17 @@ export class ResearchRouter {
           sendSSE(res, JSON.stringify({ text: '抱歉，AI 暂时无法生成研究报告。请检查 API 配置或稍后再试。' }));
         }
       } catch (err) {
-        console.error('MiniMax API error:', err);
+        console.error('Research error:', err);
         sendSSE(res, JSON.stringify({ 
           type: 'error', 
           content: `调用失败: ${err instanceof Error ? err.message : 'Unknown error'}` 
         }));
       }
 
-      // Step 3: Done
+      // Done
       sendSSE(res, JSON.stringify({
         type: 'done',
-        stats: { searched: 5, browsed: 3, sourcesUsed: 2 }
+        stats: { searched: 1, browsed: 0, sourcesUsed: 1 }
       }));
 
       sendSSE(res, '[DONE]');

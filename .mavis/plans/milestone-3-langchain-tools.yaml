@@ -1,0 +1,100 @@
+version: 1
+plan:
+  name: 'Milestone 3 - LangChain 搜索工具集成'
+  max_concurrency: 2
+  max_consecutive_failures: 1
+  max_cycles: 5
+  auto_reject_retries: 2
+
+tasks:
+  - id: implementation
+    title: '实现 Milestone 3 - LangChain 搜索工具'
+    prompt: |
+      请阅读 docs/superpowers/plans/milestone-3-langchain-tools.md 中的计划。
+
+      然后：
+      1. 确保分支 `milestone/3-langchain-tools` 基于 `origin/dev`
+      2. 按照计划实现：
+
+         A. LangChain Tools 包（tools/langchain-tools/）
+            - BingSearchTool 继承 Tool
+            - argsSchema 使用 zod
+            - ToolRegistry 工具注册表
+
+         B. ResearchAgent（apps/server/src/services/ResearchAgent.ts）
+            - 使用 createSearchTool()
+            - research() 方法：先搜索再生成报告
+            - 把搜索结果作为 LLM 上下文
+
+         C. 集成到路由
+            - 修改 apps/server/src/routes/research.ts
+            - 使用 ResearchAgent 替代 MiniMaxService
+
+      约束：
+      - 不硬编码 API 密钥
+      - 使用 @researchbot/langchain-tools 包
+      - 延迟初始化（不在启动时检查）
+
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      验证 Milestone 3 实现：
+
+      1. 检查 tools/langchain-tools/src/tools/search.ts
+         - BingSearchTool 继承 Tool
+         - argsSchema 使用 zod.object()
+         - _call() 调用 Bing Search API
+
+      2. 检查 apps/server/src/services/ResearchAgent.ts
+         - 使用 createSearchTool()
+         - research() 先调用工具再生成报告
+
+      3. 检查 apps/server/src/routes/research.ts
+         - 使用 ResearchAgent
+         - SSE 流式输出
+
+      4. 检查 apps/server/package.json
+         - 依赖 @researchbot/langchain-tools
+
+      5. 运行 pnpm typecheck 验证
+
+    timeout_ms: 1800000
+
+  - id: testing
+    title: '测试 LangChain 工具集成'
+    prompt: |
+      验收标准检查：
+      
+      1. ResearchAgent 成功调用 BingSearchTool
+         - 搜索前显示 "🔍 正在搜索相关信息..."
+         - BingSearchTool 正确调用 Bing Search API
+
+      2. 搜索结果作为上下文传给 LLM
+         - buildResearchPrompt() 包含搜索结果
+         - LLM 基于搜索结果生成报告
+
+      3. SSE 流式输出正常工作
+         - 前端显示搜索状态
+         - 报告流式显示
+
+      4. 错误处理
+         - BING_SEARCH_API_KEY 未配置时优雅降级
+         - 搜索失败时直接生成报告
+
+    assigned_to: verifier
+    depends_on: [implementation]
+    verified_by: verifier
+    verify_prompt: |
+      验证 Milestone 3 的完整功能：
+
+      1. 启动 server: pnpm run dev:server
+      2. 检查日志是否显示 "🔍 正在搜索相关信息..."
+      3. 使用 curl 测试 API:
+         curl -X POST http://localhost:3001/api/research \
+              -H "Content-Type: application/json" \
+              -d '{"topic": "测试主题"}'
+
+      4. 检查 SSE 输出是否包含搜索结果
+
+      详细报告测试结果。
+    timeout_ms: 600000
