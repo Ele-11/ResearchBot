@@ -49,8 +49,6 @@ describe('createLLMClient', () => {
     expect(client).toBeDefined();
     expect(typeof client.chat).toBe('function');
     expect(typeof client.streamChat).toBe('function');
-    expect(typeof client.generate).toBe('function');
-    expect(typeof client.streamGenerate).toBe('function');
   });
 
   it('should pass custom config to API calls', async () => {
@@ -70,7 +68,7 @@ describe('createLLMClient', () => {
       }),
     });
 
-    const result = await client.generate('Test prompt');
+    const result = await client.chat([{ role: 'user', content: 'Test prompt' }]);
     expect(result.text).toBe('Test response');
     expect(result.usage).toEqual({
       promptTokens: 10,
@@ -114,7 +112,7 @@ describe('createLLMClient', () => {
       statusText: 'Unauthorized',
     });
 
-    await expect(client.generate('Test')).rejects.toThrow(
+    await expect(client.chat([{ role: 'user', content: 'Test' }])).rejects.toThrow(
       'MiniMax API error: 401 Unauthorized'
     );
   });
@@ -130,7 +128,7 @@ describe('createLLMClient', () => {
       }),
     });
 
-    await expect(client.generate('Test')).rejects.toThrow('Invalid request');
+    await expect(client.chat([{ role: 'user', content: 'Test' }])).rejects.toThrow('Invalid request');
   });
 });
 
