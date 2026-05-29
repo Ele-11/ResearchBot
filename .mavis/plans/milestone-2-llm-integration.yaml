@@ -1,0 +1,99 @@
+version: 1
+plan:
+  name: 'Milestone 2 - LLM 集成'
+  max_concurrency: 3
+  max_consecutive_failures: 1
+  max_cycles: 10
+  auto_reject_retries: 2
+
+tasks:
+  - id: implementation
+    title: '实现 Milestone 2 - LLM 集成'
+    prompt: |
+      使用 writing-plans skill。
+      请阅读 docs/superpowers/plans/milestone-2-llm-integration.md 中的计划。
+
+      然后：
+      1. 创建 Git 分支 `milestone/2-llm-integration`，基于 `origin/dev`
+      2. 按照计划实现 MiniMax DeepSeek API 集成（流式 + 非流式）
+      3. 编写单元测试
+      4. 提交代码
+
+      约束：
+      - 不硬编码 API 密钥，使用环境变量 `MINIMAX_API_KEY`
+      - 使用 @langchain/minimax
+      - TDD 流程：RED → GREEN → REFACTOR
+
+      完成后的交付物：
+      - src/lib/types.ts（LLM 类型定义）
+      - src/lib/llm.ts（LLM 调用封装）
+      - tests/lib/llm.test.ts（单元测试）
+      - 提交到 `milestone/2-llm-integration` 分支
+
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      验证 Milestone 2 实现：
+      1. 检查分支 `milestone/2-llm-integration` 是否存在且基于 `origin/dev`
+      2. 检查 src/lib/types.ts 是否包含 LLMConfig 和 StreamChunk 类型定义
+      3. 检查 src/lib/llm.ts 是否包含 createLLM() 和流式输出支持
+      4. 检查 tests/lib/llm.test.ts 是否存在且覆盖主要功能
+      5. 运行 `pnpm lint && pnpm typecheck && pnpm test` 验证
+
+      不要修改任何文件，只做验证。如果有问题，详细说明。
+    timeout_ms: 1800000
+
+  - id: verification
+    title: '验证 Milestone 2 完成情况'
+    prompt: |
+      使用 verification-before-completion skill。
+
+      验收标准检查：
+      - [ ] MiniMax DeepSeek API 成功调用（非流式）
+      - [ ] 支持流式输出（streaming）
+      - [ ] 单元测试通过
+      - [ ] pnpm lint && pnpm typecheck && pnpm test 全部通过
+
+      验证方法：
+      1. 阅读 src/lib/llm.ts 确认 API 调用实现
+      2. 检查流式输出代码是否兼容 SSE
+      3. 运行测试并报告结果
+      4. 列出任何失败的检查项
+
+    assigned_to: verifier
+    depends_on: [implementation]
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 Milestone 2 的验收标准：
+      1. 运行 pnpm lint 确认无报错
+      2. 运行 pnpm typecheck 确认无报错
+      3. 运行 pnpm test 确认测试通过
+      4. 检查 LLM 类型定义和流式输出实现
+
+      详细报告每项验收标准的通过/失败情况。
+    timeout_ms: 600000
+
+  - id: debugging
+    title: '修复测试问题'
+    prompt: |
+      使用 systematic-debugging skill。
+
+      如果 Milestone 2 的测试有任何失败：
+      1. 分析失败原因
+      2. 创建分支 `fix/milestone-2-test-issues`，基于 `milestone/2-llm-integration`
+      3. 修复所有测试问题
+      4. 提交修复
+
+      如果测试全部通过，只需确认并报告即可。
+
+    assigned_to: coder
+    depends_on: [verification]
+    verified_by: verifier
+    verify_prompt: |
+      如果有测试失败：
+      1. 分析失败日志
+      2. 检查代码找出根本原因
+      3. 验证修复后测试通过
+
+      如果测试通过，确认并报告。
+    timeout_ms: 1200000
