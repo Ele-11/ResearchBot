@@ -1,87 +1,82 @@
-# ResearchBot - Vite Edition
+# ResearchBot Monorepo
 
-AI 论文研究助手，基于 Vite + React 18 + React Router 构建。
+A modular monorepo for the ResearchBot project, featuring enterprise-grade architecture.
 
-## 快速开始
+## Structure
+
+```
+researchbot-monorepo/
+├── apps/
+│   ├── web/               # React frontend (Vite)
+│   │   └── src/
+│   │       ├── api/       # API clients
+│   │       ├── components/# UI components
+│   │       │   ├── ui/    # Base UI components
+│   │       │   └── features/# Feature components
+│   │       ├── hooks/     # Custom React hooks
+│   │       ├── pages/     # Page components
+│   │       ├── routes/    # Route definitions
+│   │       ├── store/     # State management
+│   │       ├── styles/    # Global styles
+│   │       ├── types/     # Type definitions
+│   │       └── utils/     # Utility functions
+│   └── server/            # Node.js backend
+│       └── src/
+│           ├── config/    # Configuration
+│           ├── middleware/ # HTTP middleware
+│           ├── routes/    # API routes
+│           ├── services/  # Business logic
+│           ├── types/     # Type definitions
+│           └── utils/     # Utility functions
+├── shared/                # Shared types and utilities
+│   └── src/
+│       ├── search/        # Bing Search client
+│       └── llm/           # LLM client (MiniMax)
+├── tools/
+│   └── langchain-tools/   # LangChain tool definitions
+│       └── src/
+│           ├── base/      # Base tool classes
+│           ├── registry/  # Tool registry
+│           └── tools/     # Tool implementations
+├── package.json
+├── pnpm-workspace.yaml
+└── tsconfig.base.json
+```
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| @researchbot/web | React frontend application |
+| @researchbot/server | Node.js backend API server |
+| @researchbot/shared | Shared types and utilities |
+| @researchbot/langchain-tools | LangChain tool definitions |
+
+## Quick Start
 
 ```bash
-# 1. 安装依赖（需要先删除旧的 node_modules 和 pnpm-lock.yaml）
-rm -rf node_modules pnpm-lock.yaml package-lock.json
+# Install dependencies
+pnpm install
 
-# 2. 安装新依赖
-npm install
+# Build all packages
+pnpm build
 
-# 3. 启动开发服务器
-npm run dev
+# Development
+pnpm dev          # Frontend only (port 3000)
+pnpm dev:server   # Backend only (port 3001)
+pnpm dev:all      # Both frontend and backend
 
-# 4. 同时启动 API 服务（如需要）
-npm run dev:all
+# Type checking
+pnpm typecheck
+
+# Format code
+pnpm format
 ```
 
-## 手动清理（推荐）
+## Environment Variables
 
-删除以下 Next.js 残留文件后再安装：
+Copy `.env.example` to `.env` and configure:
 
-```bash
-# Windows PowerShell
-Remove-Item -Recurse -Force .next, next-env.d.ts, next.config.ts, postcss.config.mjs
-
-# 删除旧 API 路由目录
-Remove-Item -Recurse -Force src\app
-
-# 删除旧的 langchain 依赖
-# （可选，如果不再使用 LangChain）
-```
-
-## 脚本说明
-
-| 脚本 | 说明 |
-|------|------|
-| `npm run dev` | 启动 Vite 开发服务器 (端口 3000) |
-| `npm run build` | TypeScript 检查 + Vite 构建 |
-| `npm run preview` | 预览构建产物 |
-| `npm run server` | 启动独立 API 服务 (端口 3001) |
-| `npm run dev:all` | 同时启动前端 + API 服务 |
-| `npm run test` | Vitest 测试 |
-
-## 架构说明
-
-- **前端**: Vite + React 18 + React Router 6
-- **样式**: Tailwind CSS v3 (保留原有设计系统)
-- **API**: 独立 Node.js 服务 (替代 Next.js API Routes)
-- **测试**: Vitest + React Testing Library
-
-## 目录结构
-
-```
-src/
-├── main.tsx          # React 入口
-├── App.tsx           # 路由配置
-├── index.css         # Tailwind + 全局样式
-├── pages/
-│   └── Home.tsx     # 主页
-├── components/
-│   ├── ChatInput.tsx
-│   └── StreamOutput.tsx
-├── lib/
-│   ├── llm.ts       # LLM 工具类（前端用）
-│   └── types.ts
-└── server/
-    ├── index.ts     # API 服务入口
-    └── lib/llm.ts   # LLM 工具类（服务端用）
-```
-
-## API 服务
-
-API 服务运行在 `http://localhost:3001`，代理配置已在 Vite 中设置：
-
-- `POST /api/research` - 研究主题
-- `GET /health` - 健康检查
-
-## 环境变量
-
-创建 `.env` 文件：
-
-```env
-MINIMAX_API_KEY=your_api_key_here
-```
+- `MINIMAX_API_KEY` - MiniMax API key for LLM
+- `BING_SEARCH_API_KEY` - Bing Search API key
+- `PORT` - Server port (default: 3001)

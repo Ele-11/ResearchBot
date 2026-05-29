@@ -1,17 +1,15 @@
 # Dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.*
 
+# Build outputs
+dist/
+build/
+out/
+
 # Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
+coverage/
 
 # Misc
 .DS_Store
@@ -36,3 +34,13 @@ next-env.d.ts
 
 # Worktrees
 .worktrees/
+
+# Reports (generated at runtime)
+reports/
+
+# Turborepo
+.turbo/
+
+# IDE
+.vscode/
+.idea/
