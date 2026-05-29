@@ -14,7 +14,7 @@
 
 ## 技术栈
 
-React + Vite + TypeScript | Next.js API Routes | LangGraph.js | MiniMax DeepSeek | Playwright | Vercel
+Vite + React 18 + TypeScript + React Router | 独立 Node.js API 服务 | Tailwind CSS | MiniMax LLM | SSE 流式输出
 
 ---
 
@@ -63,4 +63,14 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+```
+
+---
+
+## 启动命令
+
+```bash
+pnpm dev        # 仅前端 (localhost:3000)
+pnpm run server # 仅 API 服务 (localhost:3001)
+pnpm run dev:all # 前端 + API 同时启动（推荐）
 ```

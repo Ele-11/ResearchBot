@@ -1,26 +1,32 @@
-"use client";
-
-import { useState } from "react";
+import { useState } from 'react';
 
 interface ChatInputProps {
   onSubmit?: (topic: string) => void;
   disabled?: boolean;
+  autoSave?: boolean;
+  onAutoSaveChange?: (autoSave: boolean) => void;
 }
 
-export default function ChatInput({ onSubmit, disabled = false }: ChatInputProps) {
-  const [topic, setTopic] = useState("");
+export default function ChatInput({ onSubmit, disabled = false, autoSave = true, onAutoSaveChange }: ChatInputProps) {
+  const [topic, setTopic] = useState('');
   const maxLength = 500;
   const minLength = 10;
 
   const handleSubmit = () => {
-    if (topic.trim().length < minLength || topic.trim().length > maxLength) {
+    if (disabled) return;
+    if (topic.trim().length < minLength) {
+      alert(`请输入至少 ${minLength} 个字符的研究主题`);
+      return;
+    }
+    if (topic.trim().length > maxLength) {
+      alert(`内容不能超过 ${maxLength} 个字符`);
       return;
     }
     onSubmit?.(topic.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
       handleSubmit();
     }
@@ -29,30 +35,67 @@ export default function ChatInput({ onSubmit, disabled = false }: ChatInputProps
   const isValid = topic.trim().length >= minLength && topic.trim().length <= maxLength;
 
   return (
-    <div className="p-4 border rounded-lg shadow-sm bg-white">
+    <div>
+      {/* Input area */}
       <textarea
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="输入研究主题，例如：AI大模型在医疗领域的应用进展"
-        className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="输入研究主题，例如：深度学习在医学影像诊断中的应用进展"
+        className="input-field"
         rows={4}
         disabled={disabled}
       />
-      <div className="flex justify-between items-center mt-3">
-        <span className={`text-sm ${topic.length > maxLength ? "text-red-500" : "text-gray-500"}`}>
-          {topic.length}/{maxLength}
-        </span>
+
+      {/* Footer: counter + button */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{
+            fontSize: 13,
+            color: topic.length > maxLength ? 'var(--red)' : 'var(--muted)',
+          }}>
+            {topic.length}/{maxLength}
+          </span>
+          {topic.trim().length > 0 && topic.trim().length < minLength && (
+            <span style={{ fontSize: 13, color: 'var(--amber)' }}>
+              还需 {minLength - topic.trim().length} 字符
+            </span>
+          )}
+          {topic.trim().length >= minLength && topic.trim().length <= maxLength && (
+            <span style={{ fontSize: 13, color: 'var(--green)' }}>✓ 可以提交</span>
+          )}
+          
+          {/* Auto-save toggle */}
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            marginLeft: 16,
+          }}>
+            <input
+              type="checkbox"
+              checked={autoSave}
+              onChange={(e) => onAutoSaveChange?.(e.target.checked)}
+              disabled={disabled}
+              style={{ width: 16, height: 16, cursor: disabled ? 'not-allowed' : 'pointer' }}
+            />
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>自动保存 MD</span>
+          </label>
+        </div>
+
         <button
           onClick={handleSubmit}
-          disabled={disabled || !isValid}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            isValid && !disabled
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={isValid && !disabled ? 'btn-primary' : 'btn-secondary'}
+          style={{ opacity: isValid && !disabled ? 1 : 0.5 }}
         >
-          开始研究
+          {disabled ? '研究进行中...' : '开始研究'}
         </button>
       </div>
     </div>
