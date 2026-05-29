@@ -8,8 +8,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   createLLMClient,
   streamToGenerator,
-} from '../../src/lib/llm';
-import type { StreamChunk } from '../../src/lib/types';
+} from '../../src/server/lib/llm';
+import type { StreamChunk } from '../../src/server/lib/llm';
 
 // Mock fetch globally
 const mockFetch = vi.fn();

@@ -1,0 +1,107 @@
+﻿version: 1
+plan:
+  name: "Milestone 3 搜索工具 - 实现 + 验证 + Debug 循环"
+  max_concurrency: 10
+  max_consecutive_failures: 2
+  max_cycles: 10
+
+tasks:
+  - id: implement-milestone3
+    title: "实现 Milestone 3 搜索工具"
+    prompt: |
+      使用 superpowers 工作流（TDD：RED → GREEN → REFACTOR）实现 Milestone 3。
+
+      目标：实现 Bing Search API 封装和 LangChain Tool 接口。
+
+      参考计划文档：docs/superpowers/plans/milestone-3-search-tool.md（已创建）
+
+      工作步骤：
+      1. 确保从 origin/dev 拉取最新代码
+      2. 从 origin/dev 新建分支 milestone/3-search-tool
+      3. 安装必要依赖（如需）：@langchain/community
+      4. 在 src/lib/ 创建 search.ts（Bing Search API 封装）
+         - createBingSearchClient()
+         - search(query, options?) 函数
+         - 使用环境变量 BING_SEARCH_API_KEY / BING_SEARCH_ENDPOINT
+      5. 在 src/agents/tools/ 创建 search.ts（LangChain Tool 实现）
+         - name: "search"
+         - description: "Search for web URLs related to a query"
+         - 实现 Tool 接口
+      6. 在 tests/lib/ 创建 search.test.ts 单元测试
+         - Mock Bing Search API 响应
+         - 测试搜索结果解析
+         - 测试错误处理
+      7. TDD 流程：先写失败测试 → 写最小实现通过测试 → 重构
+      8. 验证：pnpm lint && pnpm typecheck && pnpm test 全部通过
+      9. 推送分支到 origin
+      10. 报告完成的文件列表和 commit hash
+
+      约束：
+      - 直接在项目目录中开发，不使用 worktree
+      - API 密钥走环境变量，不硬编码
+      - 不提前实现 Milestone 4（浏览器工具）
+      - 提交规范：feat: milestone 3 - search tool with Bing Search API
+
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 Milestone 3 实现是否完成。
+
+      验证步骤：
+      1. 确认 milestone/3-search-tool 分支存在且包含最新提交
+      2. 确认以下文件存在：
+         - src/lib/search.ts（Bing Search API 封装）
+         - src/agents/tools/search.ts（LangChain Tool）
+         - tests/lib/search.test.ts（单元测试）
+      3. 运行验证命令：
+         - pnpm lint
+         - pnpm typecheck
+         - pnpm test
+      4. 检查代码质量：
+         - API 密钥使用环境变量，无硬编码
+         - LangChain Tool 接口实现正确
+         - 最多返回 10 个 URL
+         - 测试覆盖主要场景
+      5. 检查是否遵循 TDD 流程
+
+      结论要求：
+      - 若全部通过：PASS
+      - 若有问题：FAIL，并精确说明问题所在
+    timeout_ms: 1800000
+
+  - id: fix-bugs
+    title: "修复 Milestone 3 测试问题"
+    prompt: |
+      使用 superpowers 风格的 Systematic Debugging 流程修复 Milestone 3 中 verifier 发现的问题。
+
+      前置条件：verifier 在上一轮验证中发现了问题。
+
+      工作步骤：
+      1. 从 milestone/3-search-tool 新建分支 fix/3-search-tool-bugs
+      2. 仔细分析 verifier 报告的问题
+      3. 定位问题根因（不是表面修复）
+      4. 修复问题
+      5. 运行 pnpm lint && pnpm typecheck && pnpm test 确保全部通过
+      6. 推送分支并报告修复内容
+
+      约束：
+      - 使用 systematic debugging 方法：复现 → 定位 → 修复 → 验证
+      - 修复后确保不引人新问题
+      - 不要做超出问题范围的改动
+      - 提交规范：fix: milestone 3 - search tool bug fix
+
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 bug 修复是否完成。
+
+      验证步骤：
+      1. 确认 fix/3-search-tool-bugs 分支存在
+      2. 运行 pnpm lint && pnpm typecheck && pnpm test
+      3. 确认 verifier 上一轮报告的问题已解决
+      4. 确认修复未引人新问题
+
+      结论：
+      - 若全部通过：PASS
+      - 若有问题：FAIL，并精确说明问题
+    timeout_ms: 1800000
